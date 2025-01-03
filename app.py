@@ -55,16 +55,19 @@ input_data_np = np.array(input_data).reshape(1, -1)  # Reshape to match model in
 # Predict button
 if st.button("Predict Obesity"):
     try:
-        # Scale the continuous features
+        # Scale the continuous features (continuous_data only)
         continuous_data = np.array(continuous_data).reshape(1, -1)
         continuous_data_scaled = loaded_scaler.transform(continuous_data)
 
-        # Combine the scaled continuous data with discrete data
-        new_data_scaled = np.hstack((discrete_data, continuous_data_scaled))
+        # Convert discrete_data into a 2D array to be compatible with continuous_data_scaled
+        discrete_data_2d = np.array(discrete_data).reshape(1, -1)
+
+        # Combine the discrete data (now 2D) and scaled continuous data
+        new_data_scaled = np.hstack((discrete_data_2d, continuous_data_scaled))
 
         # Display the scaled input
         st.write("Scaled Input Values:")
-        st.write(f"Scaled Family History of Overweight: {discrete_data[0]}")
+        st.write(f"Scaled Family History of Overweight: {discrete_data_2d[0][0]}")
         st.write(f"Scaled Physical Activity Frequency: {continuous_data_scaled[0][0]}")
         st.write(f"Scaled Height (meters): {continuous_data_scaled[0][1]}")
         st.write(f"Scaled Number of Meals per Day: {continuous_data_scaled[0][2]}")
