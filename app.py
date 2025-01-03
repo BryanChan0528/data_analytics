@@ -43,18 +43,18 @@ for field_name, field_info in continuous_fields.items():
 
 if st.button("Predict Obesity"):
     try:
-        # Create DataFrame with proper column names for scaling
+        # Create DataFrame with proper column names for continuous fields
         continuous_df = pd.DataFrame([continuous_data], 
                                    columns=continuous_fields.keys())
         
         # Scale continuous features
         continuous_scaled = loaded_scaler.transform(continuous_df)
         
-        # Combine with discrete features
-        input_data = np.hstack((np.array(discrete_data).reshape(1, -1), 
-                               continuous_scaled))
+        # Combine continuous scaled features with discrete data
+        # Ensure the discrete data order matches what the model expects
+        input_data = np.hstack((np.array(discrete_data).reshape(1, -1), continuous_scaled))
         
-        # Predict
+        # Make prediction
         prediction = loaded_model.predict(input_data)
         result = "Obese" if prediction[0] == 1 else "Non-obese"
         st.success(f"Predicted Obesity: {result}")
