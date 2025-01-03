@@ -3,8 +3,8 @@ import joblib
 import numpy as np
 
 # Load the model and scaler
-model_path = "/content/drive/MyDrive/Random Forest_model.pkl"
-scaler_path = "/content/drive/MyDrive/scaler.pkl"
+model_path = "model/Random Forest_model.pkl"
+scaler_path = "model/scaler.pkl"
 
 loaded_model = joblib.load(model_path)
 loaded_scaler = joblib.load(scaler_path)
