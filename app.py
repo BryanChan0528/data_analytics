@@ -65,14 +65,6 @@ if st.button("Predict Obesity"):
         # Combine the discrete data (now 2D) and scaled continuous data
         new_data_scaled = np.hstack((discrete_data_2d, continuous_data_scaled))
 
-        # Display the scaled input
-        st.write("Scaled Input Values:")
-        st.write(f"Scaled Family History of Overweight: {discrete_data_2d[0][0]}")
-        st.write(f"Scaled Physical Activity Frequency: {continuous_data_scaled[0][0]}")
-        st.write(f"Scaled Height (meters): {continuous_data_scaled[0][1]}")
-        st.write(f"Scaled Number of Meals per Day: {continuous_data_scaled[0][2]}")
-        st.write(f"Scaled Age: {continuous_data_scaled[0][3]}")
-
         # Predict obesity
         obesity = loaded_model.predict(new_data_scaled)
         result = "Obese" if obesity[0] == 1 else "Non-obese"
