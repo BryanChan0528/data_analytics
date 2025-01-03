@@ -45,13 +45,15 @@ if st.button("Predict Obesity"):
     try:
         # Create DataFrame with proper column names for continuous fields
         continuous_df = pd.DataFrame([continuous_data], 
-                                   columns=continuous_fields.keys())
+                                     columns=continuous_fields.keys())
         
         # Scale continuous features
         continuous_scaled = loaded_scaler.transform(continuous_df)
         
         # Combine continuous scaled features with discrete data
         # Ensure the discrete data order matches what the model expects
+        
+        # Specify the exact column order the model expects, which includes both continuous and discrete features
         input_data = np.hstack((np.array(discrete_data).reshape(1, -1), continuous_scaled))
         
         # Make prediction
