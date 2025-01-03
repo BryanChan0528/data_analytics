@@ -1,69 +1,68 @@
 import streamlit as st
 import joblib
 import numpy as np
+import pandas as pd
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
 
-# Load the model and scaler
-model_path = "model/Random Forest_model.pkl"
-scaler_path = "model/scaler.pkl"
+def train_model_with_smote(X, y):
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    # Apply SMOTE
+    smote = SMOTE(random_state=42)
+    X_train_resampled, y_train_resampled = smote.fit_resample(X_train_scaled, y_train)
+    
+    # Train model
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train_resampled, y_train_resampled)
+    
+    return model, scaler
 
-loaded_model = joblib.load(model_path)
-loaded_scaler = joblib.load(scaler_path)
+# Load data and train model
+@st.cache_resource
+def load_or_train_model():
+    try:
+        model = joblib.load("model/Random Forest_model.pkl")
+        scaler = joblib.load("model/scaler.pkl")
+    except FileNotFoundError:
+        # Train model if files don't exist
+        data = pd.read_csv("your_data.csv")  # Replace with your data path
+        X = data.drop('obesity', axis=1)
+        y = data['obesity']
+        model, scaler = train_model_with_smote(X, y)
+        
+        # Save model and scaler
+        joblib.dump(model, "model/Random Forest_model.pkl")
+        joblib.dump(scaler, "model/scaler.pkl")
+    
+    return model, scaler
 
-# Streamlit App
-st.title("Obesity Prediction")
+# Load model and scaler
+model, scaler = load_or_train_model()
 
-st.write("Enter the input values for the following parameters:")
+# UI elements remain the same as previous code
+# ... [Previous UI code remains unchanged]
 
-# Fields based on the selected features
-discrete_fields = {
-    "family_history_overweight": "Does your family have a history of being overweight? (0 = No, 1 = Yes)"
-}
-
-continuous_fields = {
-    "height_meters": "Enter your height in meters (e.g., 1.75)",
-    "num_meals_per_day": "Enter the average number of meals you eat per day (e.g., 3)",
-    "Age": "Enter your age in years (e.g., 25)",
-    "physical_activity_frequency": "How often do you engage in physical activity? (e.g., 1 = Rarely, 2 = Sometimes, 3 = Frequently)"
-}
-
-# Collect discrete field inputs (family_history_overweight remains as a selectbox)
-discrete_data = []
-for field_name, help_text in discrete_fields.items():
-    value = st.selectbox(
-        f"{field_name.replace('_', ' ').title()}",
-        [0, 1],
-        help=help_text
-    )
-    discrete_data.append(value)
-
-# Collect continuous field inputs, including physical_activity_frequency as continuous
-continuous_data = []
-for field_name, placeholder in continuous_fields.items():
-    value = st.number_input(
-        f"{field_name.replace('_', ' ').title()}",
-        min_value=0.0,
-        step=0.1,
-        format="%.3f",
-        help=placeholder
-    )
-    continuous_data.append(value)
-
-# Predict button
 if st.button("Predict Obesity"):
     try:
-        # Separate discrete and continuous features
-        discrete_data = np.array(discrete_data).reshape(1, -1)  # Discrete features
-        continuous_data = np.array(continuous_data).reshape(1, -1)  # Continuous features
+        continuous_df = pd.DataFrame([continuous_data], columns=continuous_fields.keys())
+        continuous_scaled = scaler.transform(continuous_df)
+        input_data = np.hstack((np.array(discrete_data).reshape(1, -1), continuous_scaled))
+        prediction = model.predict(input_data)
+        probabilities = model.predict_proba(input_data)
         
-        # Scale continuous features
-        continuous_data_scaled = loaded_scaler.transform(continuous_data)
-
-        # Combine scaled continuous data with discrete data
-        new_data_scaled = np.hstack((discrete_data, continuous_data_scaled))
-
-        # Predict obesity
-        obesity = loaded_model.predict(new_data_scaled)
-        result = "Obese" if obesity[0] == 1 else "Non-obese"
-        st.success(f"Predicted Obesity: {result}")
-    except ValueError as e:
-        st.error(f"Error: {e}")
+        result = "Obese" if prediction[0] == 1 else "Non-obese"
+        probability = probabilities[0][1] if prediction[0] == 1 else probabilities[0][0]
+        
+        st.success(f"Predicted: {result} (Confidence: {probability:.2%})")
+        
+    except Exception as e:
+        st.error(f"Error in prediction: {str(e)}")
