@@ -16,11 +16,11 @@ st.write("Enter the input values for the following parameters:")
 
 # Fields based on the selected features
 discrete_fields = {
-    "physical_activity_frequency": "How often do you engage in physical activity? (1 = Rarely, 2 = Sometimes, 3 = Frequently)",
     "family_history_overweight": "Does your family have a history of being overweight? (0 = No, 1 = Yes)"
 }
 
 continuous_fields = {
+    "physical_activity_frequency": "How often do you engage in physical activity? (1 = Rarely, 2 = Sometimes, 3 = Frequently)",
     "height_meters": "Enter your height in meters (e.g., 1.75)",
     "num_meals_per_day": "Enter the average number of meals you eat per day (e.g., 3)",
     "Age": "Enter your age in years (e.g., 25)"
@@ -29,18 +29,11 @@ continuous_fields = {
 # Collect discrete field inputs
 discrete_data = []
 for field_name, help_text in discrete_fields.items():
-    if "physical_activity_frequency" in field_name:
-        value = st.selectbox(
-            f"{field_name.replace('_', ' ').title()}",
-            [1, 2, 3],
-            help=help_text
-        )
-    else:
-        value = st.selectbox(
-            f"{field_name.replace('_', ' ').title()}",
-            [0, 1],
-            help=help_text
-        )
+    value = st.selectbox(
+        f"{field_name.replace('_', ' ').title()}",
+        [0, 1],
+        help=help_text
+    )
     discrete_data.append(value)
 
 # Collect continuous field inputs
@@ -71,11 +64,11 @@ if st.button("Predict Obesity"):
 
         # Display the scaled input
         st.write("Scaled Input Values:")
-        st.write(f"Scaled Family History of Overweight: {discrete_data[1]}")
-        st.write(f"Scaled Physical Activity Frequency: {discrete_data[0]}")
-        st.write(f"Scaled Height (meters): {continuous_data_scaled[0][0]}")
-        st.write(f"Scaled Number of Meals per Day: {continuous_data_scaled[0][1]}")
-        st.write(f"Scaled Age: {continuous_data_scaled[0][2]}")
+        st.write(f"Scaled Family History of Overweight: {discrete_data[0]}")
+        st.write(f"Scaled Physical Activity Frequency: {continuous_data_scaled[0][0]}")
+        st.write(f"Scaled Height (meters): {continuous_data_scaled[0][1]}")
+        st.write(f"Scaled Number of Meals per Day: {continuous_data_scaled[0][2]}")
+        st.write(f"Scaled Age: {continuous_data_scaled[0][3]}")
 
         # Predict obesity
         obesity = loaded_model.predict(new_data_scaled)
