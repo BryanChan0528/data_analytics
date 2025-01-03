@@ -18,7 +18,7 @@ fields = ['emotional_eating', 'water_intake', 'freq_high_calorie_food', 'num_mea
 
 input_data = []
 for field in fields:
-    value = st.number_input(f"{field}", min_value=1.0, step=1e-4, format="%.3f")
+    value = st.number_input(f"{field}", min_value=0.0, step=1e-3, format="%.2f")
     input_data.append(value)
 
 # Predict button
