@@ -12,34 +12,32 @@ loaded_scaler = joblib.load(scaler_path)
 # Streamlit App
 st.title("Obesity Prediction")
 
-st.write("Enter the input values for the fields:")
+st.write("Enter the input values for the following parameters:")
 
-# Input fields for the user
-# Discrete fields (0 or 1)
+# Input fields with user-friendly display names
 discrete_fields = {
-    "family_history_overweight": "Select 0 for No, 1 for Yes",
-    "emotional_eating": "Select 0 for No, 1 for Yes"
+    "Family History of Overweight": "Does your family have a history of being overweight? (0 = No, 1 = Yes)",
+    "Emotional Eating": "Do you eat due to emotional reasons? (0 = No, 1 = Yes)"
 }
 
-# Continuous fields with placeholders
 continuous_fields = {
-    "water_intake": "Enter water intake in liters (e.g., 1.5)",
-    "freq_high_calorie_food": "Enter frequency (1-3; 1 = Rarely, 2 = Sometimes, 3 = Frequently)",
-    "num_meals_per_day": "Enter number of meals per day (e.g., 3)",
-    "height_meters": "Enter height in meters (e.g., 1.75)",
-    "Age": "Enter age in years (e.g., 25)"
+    "Water Intake (Liters)": "Enter your daily water intake in liters (e.g., 1.5)",
+    "Frequency of High-Calorie Food Consumption": "How often do you consume high-calorie foods? (1 = Rarely, 2 = Sometimes, 3 = Frequently)",
+    "Number of Meals per Day": "Enter the average number of meals you eat per day (e.g., 3)",
+    "Height (Meters)": "Enter your height in meters (e.g., 1.75)",
+    "Age (Years)": "Enter your age in years (e.g., 25)"
 }
 
 # Collect discrete field inputs
 discrete_data = []
-for field, help_text in discrete_fields.items():
-    value = st.selectbox(f"{field} ({help_text})", [0, 1])
+for display_name, help_text in discrete_fields.items():
+    value = st.selectbox(f"{display_name}", [0, 1], help=help_text)
     discrete_data.append(value)
 
 # Collect continuous field inputs
 continuous_data = []
-for field, placeholder in continuous_fields.items():
-    value = st.number_input(f"{field}", min_value=0.0, step=0.1, format="%.3f", placeholder=placeholder)
+for display_name, placeholder in continuous_fields.items():
+    value = st.number_input(f"{display_name}", min_value=0.0, step=0.1, format="%.3f", placeholder=placeholder)
     continuous_data.append(value)
 
 # Combine inputs
@@ -56,4 +54,4 @@ if st.button("Predict Obesity"):
 
     # Predict obesity
     obesity = loaded_model.predict(new_data_scaled)
-    st.success(f"Predicted Obesity: {obesity[0]}")
+    st.success(f"Predicted Obesity: {'Yes' if obesity[0] == 1 else 'No'}")
