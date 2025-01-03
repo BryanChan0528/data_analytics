@@ -14,44 +14,32 @@ st.title("Obesity Prediction")
 
 st.write("Enter the input values for the following parameters:")
 
-# Input fields with user-friendly display names
-discrete_fields = {
-    "Family History of Overweight": "Does your family have a history of being overweight? (0 = No, 1 = Yes)",
-    "Emotional Eating": "Do you eat due to emotional reasons? (0 = No, 1 = Yes)"
-}
-
-continuous_fields = {
-    "Water Intake (Liters)": "Enter your daily water intake in liters (e.g., 1.5)",
-    "Frequency of High-Calorie Food Consumption": "How often do you consume high-calorie foods? (1 = Rarely, 2 = Sometimes, 3 = Frequently)",
-    "Number of Meals per Day": "Enter the average number of meals you eat per day (e.g., 3)",
+# Input fields with user-friendly display names and placeholders
+fields = {
+    "Physical Activity Frequency": "How many times per week do you engage in physical activities? (e.g., 3)",
     "Height (Meters)": "Enter your height in meters (e.g., 1.75)",
+    "Number of Meals per Day": "Enter the average number of meals you eat per day (e.g., 3)",
+    "Family History of Overweight": "Does your family have a history of being overweight? (0 = No, 1 = Yes)",
     "Age (Years)": "Enter your age in years (e.g., 25)"
 }
 
-# Collect discrete field inputs
-discrete_data = []
-for display_name, help_text in discrete_fields.items():
-    value = st.selectbox(f"{display_name}", [0, 1], help=help_text)
-    discrete_data.append(value)
-
-# Collect continuous field inputs
-continuous_data = []
-for display_name, placeholder in continuous_fields.items():
-    value = st.number_input(f"{display_name}", min_value=0.0, step=0.1, format="%.3f", placeholder=placeholder)
-    continuous_data.append(value)
-
-# Combine inputs
-input_data = discrete_data + continuous_data
+input_data = []
+for display_name, placeholder in fields.items():
+    if "Family History" in display_name:
+        # Discrete field (0 or 1)
+        value = st.selectbox(f"{display_name}", [0, 1], help=placeholder)
+    else:
+        # Continuous field with placeholder
+        value = st.number_input(f"{display_name}", min_value=0.0, step=0.1, format="%.3f", placeholder=placeholder)
+    input_data.append(value)
 
 # Predict button
 if st.button("Predict Obesity"):
-    # Transform the continuous data if needed
-    # (Add any transformation logic here if required, e.g., log scaling or normalization)
-
     # Prepare the data for prediction
     new_data = np.array(input_data).reshape(1, -1)
     new_data_scaled = loaded_scaler.transform(new_data)
 
     # Predict obesity
     obesity = loaded_model.predict(new_data_scaled)
-    st.success(f"Predicted Obesity: {'Yes' if obesity[0] == 1 else 'No'}")
+    result = "Obese" if obesity[0] == 1 else "Non-obese"
+    st.success(f"Predicted Obesity: {result}")
